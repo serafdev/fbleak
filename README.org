@@ -1,0 +1,47 @@
+#+title: fbleak
+#+description: Facebook lost your data again
+
+* Setup
+#+begin_src sh
+mkdir data
+docker-compose up -d
+#+end_src
+
+Download the leaked data and put it in ./data per country. Name correctly the text files as such: Canada.txt, USA.txt, etc. In some cases it comes in multiple files
+To solve this you can do something like: ~cat USA\ 0*.txt > USA.txt~, make sure everything's there then ~rm USA \0*.txt~
+
+* Load
+#+begin_src sh
+python3 -m venv venv
+. venv/bin/activate.fish # or source venv/bin/activate for bash and zsh
+python load.py
+#+end_src
+
+That should take what's in your txt files and put them in the postgres that we deployed at Setup. The data should be accessible at ~localhost:8080~ using the GraphQL (Hasura endpoint)
+
+A few steps are still manual like creating tables, you can do that easily by looking at this in the code, you could also try to uncomment the create_all the first time you run the code, didn't test that yet:
+
+#+begin_src python
+    fb_leak = Table(
+        "fb_leak",
+        meta,
+        Column("id", Integer, primary_key=True),
+        Column("file_name", String),
+        Column("phone_number", String),
+        Column("facebook_id", String),
+        Column("first_name", String),
+        Column("last_name", String),
+        Column("sex", String),
+        Column("location", String),
+        Column("origin", String),
+        Column("situation", String),
+        Column("work_or_school", String),
+        Column("some_date_1", String),
+        Column("email", String),
+        Column("some_date_2", String),
+    )
+
+    # meta.create_all(con)
+
+#+end_src
+
